@@ -1,34 +1,51 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Navigation;
+using System.Windows.Threading;
+using ClickOnceCustomUriScheme.ApplicationUri;
 using NLog;
-using NLog.Fluent;
 
 namespace ClickOnceCustomUriScheme
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
     public partial class App : Application
     {
-        private readonly Logger _log = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
+        public App()
+        {
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
+            DispatcherUnhandledException += OnDispatcherUnhandledException;
+        }
+
+        private static void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs args)
+        {
+            var exception = args.Exception;
+
+            Log.Error(exception, $"AppDomain.CurrentDomain.UnhandledException: {exception?.Message}");
+            LogManager.Flush();
+        }
+
+        private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs args)
+        {
+            var exception = args.ExceptionObject as Exception;
+
+            Log.Error(exception, $"AppDomain.CurrentDomain.UnhandledException: {exception?.Message}");
+            LogManager.Flush();
+        }
 
         protected override void OnLoadCompleted(NavigationEventArgs e)
         {
             base.OnLoadCompleted(e);
 
-            _log.Info("Application load completed");
+            Log.Info("Application load completed");
         }
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            _log.Info("Application is starting up");
+            Log.Info("Application is starting up");
+
+            ApplicationUriSchema.CheckRegistration();
         }
     }
 }
