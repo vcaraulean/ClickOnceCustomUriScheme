@@ -21,16 +21,19 @@ namespace ClickOnceCustomUriScheme
         {
             var exception = args.Exception;
 
-            Log.Error(exception, $"AppDomain.CurrentDomain.UnhandledException: {exception?.Message}");
+            Log.Error(exception, $"Application.DispatcherUnhandledException: {exception?.Message}");
             LogManager.Flush();
+
+            Environment.Exit(-1);
         }
 
         private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs args)
         {
             var exception = args.ExceptionObject as Exception;
-
             Log.Error(exception, $"AppDomain.CurrentDomain.UnhandledException: {exception?.Message}");
             LogManager.Flush();
+
+            Environment.Exit(-1);
         }
 
         protected override void OnLoadCompleted(NavigationEventArgs e)

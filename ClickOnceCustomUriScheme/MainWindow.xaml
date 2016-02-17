@@ -12,6 +12,7 @@
     <Grid Margin="20">
         <StackPanel>
             <TextBlock Text="{Binding ApplicationVersion, Mode=OneTime, StringFormat='{}Application version: {0}' }" Margin="0 10"/>
+            <TextBox Text="{Binding AdditionalInfo, Mode=OneTime}" Margin="0 10" IsReadOnly="True"/>
             <Button HorizontalAlignment="Right"
                     Content="Open web page with links" 
                     Width="250"
