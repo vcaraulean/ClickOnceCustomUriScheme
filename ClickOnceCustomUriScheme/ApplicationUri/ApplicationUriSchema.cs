@@ -1,4 +1,8 @@
-﻿using Microsoft.Win32;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Reflection;
+using Microsoft.Win32;
 using NLog;
 
 namespace ClickOnceCustomUriScheme.ApplicationUri
@@ -9,25 +13,53 @@ namespace ClickOnceCustomUriScheme.ApplicationUri
 
         private const string SchemaDefinition = "theapp";
         private static readonly string UriRegistrationKey = $"Software\\Classes\\{SchemaDefinition}";
+        private static readonly string CommandRegistrationKey = $"{UriRegistrationKey}\\shell\\open\\command";
+
+        private static string PathToCurrentExecutable => Path.Combine(
+            Assembly.GetExecutingAssembly().Location
+            //, Process.GetCurrentProcess().ProcessName + ".exe"
+            );
 
         public static void CheckRegistration()
         {
             Log.Debug("Starting Custom Uri check");
+            Log.Debug($"Path to current executable: {PathToCurrentExecutable}");
 
-            var registration = Registry.CurrentUser.OpenSubKey(UriRegistrationKey);
-            if (registration != null)
+            Log.Debug($"Registry key dump before: {Registry.CurrentUser.OpenSubKey(UriRegistrationKey)}");
+            Execute();
+            Log.Debug($"Registry key dump after: {Registry.CurrentUser.OpenSubKey(UriRegistrationKey)}");
+        }
+
+        private static void Execute()
+        {
+            using (var uriKey = Registry.CurrentUser.CreateSubKey(UriRegistrationKey))
             {
-                Log.Debug($"Registration key found ({UriRegistrationKey})");
-                // TODO: check all properties are setup correctly
-                return;
+                if (uriKey == null)
+                {
+                    Log.Debug($"Registration key cannot be created ({UriRegistrationKey})");
+                    return;
+                }
+
+                uriKey.SetValue(null, "URL:Catalyst protocol", RegistryValueKind.String);
+                uriKey.SetValue("URL Protocol", "", RegistryValueKind.String);
+                var defaultIconKey = uriKey.CreateSubKey("DefaultIcon");
+                if (defaultIconKey == null)
+                {
+                    Log.Error("default icon key is null");
+                    return;
+                }
+                defaultIconKey.SetValue(null, $"{PathToCurrentExecutable},1");
             }
 
-            Log.Debug($"Registration key not found ({UriRegistrationKey})");
-            // TODO create key with values
-
-            //  http://stackoverflow.com/questions/3964152/how-do-i-create-a-custom-protocol-and-map-it-to-an-application/3964401#3964401
-            //  http://stackoverflow.com/questions/24455311/uri-scheme-launching
-            //  https://msdn.microsoft.com/en-us/library/aa767914(v=vs.85).aspx
+            using (var commandKey = Registry.CurrentUser.CreateSubKey(CommandRegistrationKey))
+            {
+                if (commandKey == null)
+                {
+                    Log.Error($"Key {CommandRegistrationKey} was not created");
+                    return;
+                }
+                commandKey.SetValue(null, $"\"{PathToCurrentExecutable}\" \"%1\"", RegistryValueKind.String);
+            }
         }
     }
 }

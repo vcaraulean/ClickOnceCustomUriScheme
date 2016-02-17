@@ -23,6 +23,8 @@ namespace ClickOnceCustomUriScheme
         public MainWindow()
         {
             InitializeComponent();
+
+            DataContext = new MainWindowViewModel();
         }
     }
 }
