@@ -1,12 +1,15 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Win32;
 using NLog;
 
 namespace ClickOnceCustomUriScheme.ApplicationUri
 {
+    /// <summary>
+    /// Documentation: https://msdn.microsoft.com/en-us/library/aa767914(v=vs.85).aspx
+    /// 
+    /// Keys are registered in User's space (HKCU)
+    /// </summary>
     public class ApplicationUriSchema
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
@@ -15,19 +18,16 @@ namespace ClickOnceCustomUriScheme.ApplicationUri
         private static readonly string UriRegistrationKey = $"Software\\Classes\\{SchemaDefinition}";
         private static readonly string CommandRegistrationKey = $"{UriRegistrationKey}\\shell\\open\\command";
 
-        private static string PathToCurrentExecutable => Path.Combine(
-            Assembly.GetExecutingAssembly().Location
-            //, Process.GetCurrentProcess().ProcessName + ".exe"
-            );
+        private static string PathToCurrentExecutable => Assembly.GetExecutingAssembly().Location;
 
         public static void CheckRegistration()
         {
             Log.Debug("Starting Custom Uri check");
             Log.Debug($"Path to current executable: {PathToCurrentExecutable}");
 
-            Log.Debug($"Registry key dump before: {Registry.CurrentUser.OpenSubKey(UriRegistrationKey)}");
+            var stopwatch = Stopwatch.StartNew();
             Execute();
-            Log.Debug($"Registry key dump after: {Registry.CurrentUser.OpenSubKey(UriRegistrationKey)}");
+            Log.Debug($"Registry update completed in {stopwatch.ElapsedMilliseconds:N0} ms");
         }
 
         private static void Execute()
@@ -42,14 +42,15 @@ namespace ClickOnceCustomUriScheme.ApplicationUri
 
                 uriKey.SetValue(null, "URL:Catalyst protocol", RegistryValueKind.String);
                 uriKey.SetValue("URL Protocol", "", RegistryValueKind.String);
-                var defaultIconKey = uriKey.CreateSubKey("DefaultIcon");
-                if (defaultIconKey == null)
-                {
-                    Log.Error("default icon key is null");
-                    return;
-                }
-                defaultIconKey.SetValue(null, $"{PathToCurrentExecutable},1");
             }
+
+            var defaultIconKey = Registry.CurrentUser.CreateSubKey("DefaultIcon");
+            if (defaultIconKey == null)
+            {
+                Log.Error("default icon key is null");
+                return;
+            }
+            defaultIconKey.SetValue(null, $"{PathToCurrentExecutable},1");
 
             using (var commandKey = Registry.CurrentUser.CreateSubKey(CommandRegistrationKey))
             {

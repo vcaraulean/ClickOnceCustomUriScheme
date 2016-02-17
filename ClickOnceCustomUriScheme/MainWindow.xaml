@@ -11,7 +11,12 @@
         Icon="app.ico">
     <Grid Margin="20">
         <StackPanel>
-            <TextBlock Text="{Binding ApplicationVersion, Mode=OneTime, StringFormat='{}Application version: {0}' }" Margin="10"/>
+            <TextBlock Text="{Binding ApplicationVersion, Mode=OneTime, StringFormat='{}Application version: {0}' }" Margin="0 10"/>
+            <Button HorizontalAlignment="Right"
+                    Content="Open web page with links" 
+                    Width="250"
+                    Click="ButtonBase_OnClick"
+                    Margin="0 0 0 10"/>
             <TextBox AcceptsReturn="True" Height="200" VerticalContentAlignment="Top"
                      Text="{Binding Arguments}"/>
         </StackPanel>
