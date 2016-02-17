@@ -51,10 +51,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>586C4ED109BC9F78414E02AA3AA165D7A9666E72</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>72DBEEE082ABA910C5FBC8037D5EDB85BD2F5027</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>ClickOnceCustomUriScheme_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>ClickOnceCustomUriScheme_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -119,7 +119,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="ClickOnceCustomUriScheme_TemporaryKey.pfx" />
+    <None Include="ClickOnceCustomUriScheme_1_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
