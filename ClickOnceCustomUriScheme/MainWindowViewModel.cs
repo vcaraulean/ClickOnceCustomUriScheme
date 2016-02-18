@@ -29,6 +29,7 @@ namespace ClickOnceCustomUriScheme
 
                 var sb = new StringBuilder();
                 sb.AppendLine($"ActivationUri: {ApplicationDeployment.CurrentDeployment.ActivationUri}");
+                sb.AppendLine($"UpdateLocation: {ApplicationDeployment.CurrentDeployment.UpdateLocation}");
                 sb.AppendLine($"DataDirectory: {ApplicationDeployment.CurrentDeployment.DataDirectory}");
                 return sb.ToString();
             }

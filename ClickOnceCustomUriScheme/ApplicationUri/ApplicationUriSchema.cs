@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Deployment.Application;
+using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Win32;
 using NLog;
@@ -59,8 +60,21 @@ namespace ClickOnceCustomUriScheme.ApplicationUri
                     Log.Error($"Key {CommandRegistrationKey} was not created");
                     return;
                 }
-                commandKey.SetValue(null, $"\"{PathToCurrentExecutable}\" \"%1\"", RegistryValueKind.String);
+
+                string launchCommand = GetApplicationLaunchCommand();
+                Log.Debug($"Command to launch application: {launchCommand}");
+                commandKey.SetValue(null, launchCommand, RegistryValueKind.String);
             }
+        }
+
+        private static string GetApplicationLaunchCommand()
+        {
+            if (!ApplicationDeployment.IsNetworkDeployed)
+                return $"\"{PathToCurrentExecutable}\" \"%1\"";
+
+            var uri = ApplicationDeployment.CurrentDeployment.UpdateLocation;
+
+            return $"iexplore.exe \"{uri}\"";
         }
     }
 }
