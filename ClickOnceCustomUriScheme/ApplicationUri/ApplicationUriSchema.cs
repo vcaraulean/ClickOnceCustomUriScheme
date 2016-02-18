@@ -11,7 +11,7 @@ namespace ClickOnceCustomUriScheme.ApplicationUri
     /// 
     /// Keys are registered in User's space (HKCU)
     /// </summary>
-    public class ApplicationUriSchema
+    public static class ApplicationUriSchema
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
@@ -23,8 +23,19 @@ namespace ClickOnceCustomUriScheme.ApplicationUri
 
         public static void CheckRegistration()
         {
+            if (!ApplicationDeployment.IsNetworkDeployed)
+            {
+                Log.Debug("Application is not deployed using ClickOnce. Uri Scheme will not be registered");
+                return;
+            }
+
+            if (!ApplicationDeployment.CurrentDeployment.IsFirstRun)
+            {
+                Log.Debug("This is not first run of the application, skipping registration of custom URI schema");
+                return;
+            }
+
             Log.Debug("Configuring Custom Uri schema");
-            Log.Debug($"Path to current executable: {PathToCurrentExecutable}");
 
             var stopwatch = Stopwatch.StartNew();
             Execute();
@@ -61,7 +72,7 @@ namespace ClickOnceCustomUriScheme.ApplicationUri
                     return;
                 }
 
-                string launchCommand = GetApplicationLaunchCommand();
+                var launchCommand = GetApplicationLaunchCommand();
                 Log.Debug($"Command to launch application: {launchCommand}");
                 commandKey.SetValue(null, launchCommand, RegistryValueKind.String);
             }
@@ -69,10 +80,10 @@ namespace ClickOnceCustomUriScheme.ApplicationUri
 
         private static string GetApplicationLaunchCommand()
         {
-            if (!ApplicationDeployment.IsNetworkDeployed)
-                return $"\"{PathToCurrentExecutable}\" \"%1\"";
+            //if (!ApplicationDeployment.IsNetworkDeployed)
+            //    return $"\"{PathToCurrentExecutable}\" \"%1\"";
 
-            var uri = ApplicationDeployment.CurrentDeployment.UpdateLocation;
+            var uri = ApplicationDeployment.CurrentDeployment.ActivationUri;
 
             return $"\"{PathToCurrentExecutable}\" -clickonce \"{uri}\" \"%1\"";
         }

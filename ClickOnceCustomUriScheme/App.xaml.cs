@@ -67,7 +67,8 @@ namespace ClickOnceCustomUriScheme
             {
                 if (ApplicationDeployment.IsNetworkDeployed)
                 {
-                    Log.Warn("When Application is deployed as ClickOnce the StartupArgs should not contain -clickonce parameter.");
+                    Log.Error("When Application is deployed as ClickOnce the StartupArgs should not contain -clickonce parameter.");
+                    Shutdown();
                     return;
                 }
 
@@ -79,6 +80,7 @@ namespace ClickOnceCustomUriScheme
                               "Application running with -clickonce key expects 2 additional parameters: " +
                               "uri to clickonce deployment and the original URI that is executing. " +
                               "Application execution will continue as a normal application, non ClickOnce deployed");
+                    Shutdown();
                     return;
                 }
 
@@ -90,6 +92,7 @@ namespace ClickOnceCustomUriScheme
                     Log.Error("AbsolutePath for provided URI contains multiple path segments. " +
                               "Only single-segment paths are allowed. Good example: theapp://ui/module. " +
                               $"Bad example: theapp://ui/module/segment. Provided uri value: {customUri}, extracted path: {applicationPath}");
+                    Shutdown();
                     return;
                 }
 
@@ -100,8 +103,8 @@ namespace ClickOnceCustomUriScheme
                 Log.Debug("ClickOnce launch command: " + clickOnceLaunchCommand);
                 var processInfo = new ProcessStartInfo
                 {
-                    // The supplied URL
-                    FileName = clickOnceLaunchCommand,
+                    FileName = "iexplore.exe",
+                    Arguments = clickOnceLaunchCommand,
                     UseShellExecute = true
                 };
 

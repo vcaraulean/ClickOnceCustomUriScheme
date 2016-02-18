@@ -23,6 +23,9 @@ namespace ClickOnceCustomUriScheme
             }
         }
 
+        public string IsNetworkDeployed => ApplicationDeployment.IsNetworkDeployed ? "true" : "false";
+        public string IsFirstRun => ApplicationDeployment.CurrentDeployment?.IsFirstRun == true ? "true" : "false";
+
         public string AdditionalInfo
         {
             get
