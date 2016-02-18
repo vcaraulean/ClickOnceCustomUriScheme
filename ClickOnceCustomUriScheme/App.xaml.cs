@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Deployment.Application;
+using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using System.Windows.Navigation;
 using System.Windows.Threading;
@@ -48,7 +52,40 @@ namespace ClickOnceCustomUriScheme
             base.OnStartup(e);
             Log.Info("Application is starting up");
 
+            if (e.Args.Any())
+                HandleStartupArgs(e.Args);
+
             ApplicationUriSchema.CheckRegistration();
+        }
+
+        private void HandleStartupArgs(string[] args)
+        {
+            Log.Debug($"Application's startup arguments: {args.Aggregate("", (s, s1) => $"{s}, {s1}")}");
+
+            var argList = args.ToList();
+            if (argList.RemoveAll(MatchMaker("-clickonce")) > 0)
+            {
+                Log.Debug("Application is launched with -clickonce key. Attempt to run as ClickOnce application");
+
+                if (!ApplicationDeployment.IsNetworkDeployed)
+                {
+                    var processInfo = new ProcessStartInfo
+                    {
+                        // The supplied URL
+                        FileName = argList[0],
+                        UseShellExecute = true
+                    };
+
+                    Log.Debug("Launching application in ClickOnce context, then shutting down");
+                    new Process {StartInfo = processInfo}.Start();
+                    Shutdown();
+                }
+            }
+        }
+
+        static Predicate<T> MatchMaker<T>(params T[] searches)
+        {
+            return input => searches.Any(s => EqualityComparer<T>.Default.Equals(s, input));
         }
     }
 }

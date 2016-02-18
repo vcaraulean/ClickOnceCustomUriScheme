@@ -12,14 +12,19 @@
     <Grid Margin="20">
         <StackPanel>
             <TextBlock Text="{Binding ApplicationVersion, Mode=OneTime, StringFormat='{}Application version: {0}' }" Margin="0 10"/>
-            <TextBox Text="{Binding AdditionalInfo, Mode=OneTime}" Margin="0 10" IsReadOnly="True"/>
+            <TextBox Text="{Binding AdditionalInfo, Mode=OneTime}" Margin="0 10" IsReadOnly="True"
+                     HorizontalScrollBarVisibility="Auto"/>
             <Button HorizontalAlignment="Right"
                     Content="Open web page with links" 
                     Width="250"
                     Click="ButtonBase_OnClick"
                     Margin="0 0 0 10"/>
-            <TextBox AcceptsReturn="True" Height="200" VerticalContentAlignment="Top"
-                     Text="{Binding Arguments}"/>
+            <TextBox AcceptsReturn="True" 
+                     VerticalScrollBarVisibility="Auto"
+                     HorizontalScrollBarVisibility="Auto"
+                     Height="180" 
+                     VerticalContentAlignment="Top"
+                     Text="{Binding QueryStringParameters, Mode=OneTime}"/>
         </StackPanel>
     </Grid>
 </Window>

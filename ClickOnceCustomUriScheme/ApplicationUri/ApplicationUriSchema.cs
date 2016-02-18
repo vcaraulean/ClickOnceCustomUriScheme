@@ -19,11 +19,11 @@ namespace ClickOnceCustomUriScheme.ApplicationUri
         private static readonly string UriRegistrationKey = $"Software\\Classes\\{SchemaDefinition}";
         private static readonly string CommandRegistrationKey = $"{UriRegistrationKey}\\shell\\open\\command";
 
-        private static string PathToCurrentExecutable => Assembly.GetExecutingAssembly().Location;
+        public static string PathToCurrentExecutable => Assembly.GetExecutingAssembly().Location;
 
         public static void CheckRegistration()
         {
-            Log.Debug("Starting Custom Uri check");
+            Log.Debug("Configuring Custom Uri schema");
             Log.Debug($"Path to current executable: {PathToCurrentExecutable}");
 
             var stopwatch = Stopwatch.StartNew();
@@ -74,7 +74,7 @@ namespace ClickOnceCustomUriScheme.ApplicationUri
 
             var uri = ApplicationDeployment.CurrentDeployment.UpdateLocation;
 
-            return $"iexplore.exe \"{uri}\"";
+            return $"\"{PathToCurrentExecutable}\" -clickonce \"{uri}\" \"%1\"";
         }
     }
 }
