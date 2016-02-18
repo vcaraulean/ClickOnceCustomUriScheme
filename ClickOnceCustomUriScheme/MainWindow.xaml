@@ -6,23 +6,29 @@
         xmlns:local="clr-namespace:ClickOnceCustomUriScheme"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance IsDesignTimeCreatable=True, Type=local:MainWindowViewModel}"
-        Title="MainWindow" Height="400" Width="600"
+        Title="MainWindow" Height="600" Width="600"
         FontSize="16"
         Icon="app.ico">
     <Grid Margin="20">
         <StackPanel>
             <TextBlock Text="{Binding ApplicationVersion, Mode=OneTime, StringFormat='{}Application version: {0}' }" Margin="0 10"/>
-            <TextBox Text="{Binding AdditionalInfo, Mode=OneTime}" Margin="0 10" IsReadOnly="True"
-                     HorizontalScrollBarVisibility="Auto"/>
+            <TextBox Text="{Binding AdditionalInfo, Mode=OneTime}" 
+                     Margin="0 10" 
+                     IsReadOnly="True"
+                     Height="200"
+                     HorizontalScrollBarVisibility="Auto"
+                     VerticalContentAlignment="Top"
+                     VerticalScrollBarVisibility="Auto"/>
             <Button HorizontalAlignment="Right"
                     Content="Open web page with links" 
                     Width="250"
                     Click="ButtonBase_OnClick"
                     Margin="0 0 0 10"/>
             <TextBox AcceptsReturn="True" 
+                     IsReadOnly="True"
                      VerticalScrollBarVisibility="Auto"
                      HorizontalScrollBarVisibility="Auto"
-                     Height="180" 
+                     Height="200" 
                      VerticalContentAlignment="Top"
                      Text="{Binding QueryStringParameters, Mode=OneTime}"/>
         </StackPanel>

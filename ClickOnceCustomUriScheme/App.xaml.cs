@@ -65,21 +65,49 @@ namespace ClickOnceCustomUriScheme
             var argList = args.ToList();
             if (argList.RemoveAll(MatchMaker("-clickonce")) > 0)
             {
+                if (ApplicationDeployment.IsNetworkDeployed)
+                {
+                    Log.Warn("When Application is deployed as ClickOnce the StartupArgs should not contain -clickonce parameter.");
+                    return;
+                }
+
                 Log.Debug("Application is launched with -clickonce key. Attempt to run as ClickOnce application");
 
-                if (!ApplicationDeployment.IsNetworkDeployed)
+                if (argList.Count != 2)
                 {
-                    var processInfo = new ProcessStartInfo
-                    {
-                        // The supplied URL
-                        FileName = argList[0],
-                        UseShellExecute = true
-                    };
-
-                    Log.Debug("Launching application in ClickOnce context, then shutting down");
-                    new Process {StartInfo = processInfo}.Start();
-                    Shutdown();
+                    Log.Error("StartupArgs count mismatch. " +
+                              "Application running with -clickonce key expects 2 additional parameters: " +
+                              "uri to clickonce deployment and the original URI that is executing. " +
+                              "Application execution will continue as a normal application, non ClickOnce deployed");
+                    return;
                 }
+
+                var clickOnceDeploymentUri = argList[0];
+                var customUri = new Uri(argList[1]);
+                var applicationPath = customUri.AbsolutePath.Trim('/');
+                if (applicationPath.Contains("/"))
+                {
+                    Log.Error("AbsolutePath for provided URI contains multiple path segments. " +
+                              "Only single-segment paths are allowed. Good example: theapp://ui/module. " +
+                              $"Bad example: theapp://ui/module/segment. Provided uri value: {customUri}, extracted path: {applicationPath}");
+                    return;
+                }
+
+                var originalQuery = customUri.Query.Trim('?', ';');
+
+                var clickOnceQuery = $"applicationPath={applicationPath};{originalQuery}";
+                var clickOnceLaunchCommand = $"{clickOnceDeploymentUri}?{clickOnceQuery}";
+                Log.Debug("ClickOnce launch command: " + clickOnceLaunchCommand);
+                var processInfo = new ProcessStartInfo
+                {
+                    // The supplied URL
+                    FileName = clickOnceLaunchCommand,
+                    UseShellExecute = true
+                };
+
+                Log.Debug("Launching application in ClickOnce context, then shutting down");
+                new Process {StartInfo = processInfo}.Start();
+                Shutdown();
             }
         }
 
