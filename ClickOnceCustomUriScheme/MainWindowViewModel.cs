@@ -1,26 +1,21 @@
 ﻿using System;
 using System.Deployment.Application;
-using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Text;
-using NLog;
 
 namespace ClickOnceCustomUriScheme
 {
     public class MainWindowViewModel
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         public string ApplicationVersion
         {
             get
             {
                 if (ApplicationDeployment.IsNetworkDeployed)
-                {
                     return $"(clickonce) {ApplicationDeployment.CurrentDeployment.CurrentVersion}";
-                }
-                
+
                 return "(standalone) " + Assembly.GetExecutingAssembly().GetName().Version;
             }
         }
@@ -51,44 +46,19 @@ namespace ClickOnceCustomUriScheme
             get
             {
                 if (!ApplicationDeployment.IsNetworkDeployed)
-                    return "<none>";
+                    return "<not network deployed>";
 
-                //var query = ApplicationDeployment.CurrentDeployment.ActivationUri?.Query;
                 if (ApplicationDeployment.CurrentDeployment.ActivationUri == null)
-                    return "ActivationUri is null";
+                    return "<ActivationUri is null>";
 
                 var collection = ApplicationDeployment.CurrentDeployment.ActivationUri?.ParseQueryString();
-                if (collection == null)
-                    return "No query paramters";
+                if (collection == null || collection.Count == 0)
+                    return "<no query paramters>";
 
-                //
-                //foreach (var VARIABLE in collection.)
-                //{
-
-                //}
-
-                //foreach (var item in collection)
-                //{
-                //    item.
-                //}
-
-                
-                Log.Debug($"Query string Collection has {collection.AllKeys.Length} keys");
-                var dict = collection
+                return collection
                     .AllKeys
-                    .ToDictionary(k => k, k => collection[k]);
-
-                var sb = new StringBuilder();
-                foreach (var x in dict)
-                {
-                    Log.Debug($"Query string Collection {x.Key} : {x.Value}");
-                    sb.AppendLine($"{x.Key}: {x.Value}");
-                }
-                return sb.ToString();
-                //return collection
-                //    .AllKeys
-                //    .ToDictionary(k => k, k => collection[k])
-                //    .Aggregate("", (acc, kvp1) => $"{kvp1.Key}: {kvp1.Value}{Environment.NewLine}");
+                    .ToDictionary(k => k, k => collection[k])
+                    .Aggregate("", (acc, kvp1) => acc + $"{kvp1.Key}: {kvp1.Value}{Environment.NewLine}");
             }
         }
     }
