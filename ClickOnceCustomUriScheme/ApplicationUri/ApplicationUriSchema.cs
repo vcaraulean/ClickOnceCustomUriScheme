@@ -1,4 +1,5 @@
-﻿using System.Deployment.Application;
+﻿using System;
+using System.Deployment.Application;
 using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Win32;
@@ -80,11 +81,15 @@ namespace ClickOnceCustomUriScheme.ApplicationUri
 
         private static string GetApplicationLaunchCommand()
         {
-            //if (!ApplicationDeployment.IsNetworkDeployed)
-            //    return $"\"{PathToCurrentExecutable}\" \"%1\"";
+            var uri = ApplicationDeployment.CurrentDeployment.ActivationUri?.AbsoluteUri;
+            if (uri == null)
+                throw new InvalidOperationException("ApplicationDeployment.CurrentDeployment.ActivationUri is null");
 
-            var uri = ApplicationDeployment.CurrentDeployment.ActivationUri;
-
+            // In case if application was launched by URI schema handler and was also updated, then 
+            // uri might contain query parameters. We want only the absolute uri.
+            if (uri.Contains("?"))
+                uri = uri.Substring(0, uri.IndexOf('?'));
+            
             return $"\"{PathToCurrentExecutable}\" -clickonce \"{uri}\" \"%1\"";
         }
     }

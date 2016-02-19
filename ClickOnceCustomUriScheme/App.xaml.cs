@@ -85,20 +85,28 @@ namespace ClickOnceCustomUriScheme
                 }
 
                 var clickOnceDeploymentUri = argList[0];
-                var customUri = new Uri(argList[1]);
-                var applicationPath = customUri.AbsolutePath.Trim('/');
+                var schemeUri = new Uri(argList[1]);
+                
+                // We only support URI with a single hop: either host specified, or no host and a path
+                // Valid examples: theapp://ui-module; theapp:ui-module
+                // Invalid examples: theapp:/ui-module/sub, theapp:ui-module/sub
+
+                // if '//' is specified, then host is not empty. without '//' host is null
+                var applicationPath = $"{schemeUri.Host}/{schemeUri.AbsolutePath}".Trim('/');
                 if (applicationPath.Contains("/"))
                 {
-                    Log.Error("AbsolutePath for provided URI contains multiple path segments. " +
-                              "Only single-segment paths are allowed. Good example: theapp://ui/module. " +
-                              $"Bad example: theapp://ui/module/segment. Provided uri value: {customUri}, extracted path: {applicationPath}");
+                    Log.Error("The path in provided URI contains multiple segments. " +
+                              "Only single-segment paths are allowed. Good examples: theapp://ui-module, theapp:ui-module. " +
+                              $"Bad example: theapp://ui-module/segment. Provided uri value: {schemeUri}, extracted path: {applicationPath}");
                     Shutdown();
                     return;
                 }
 
-                var originalQuery = customUri.Query.Trim('?', ';');
+                var schemeUriQuery = schemeUri.Query.Trim('?', ';');
+                if (!string.IsNullOrEmpty(schemeUriQuery))
+                    schemeUriQuery = $"&{schemeUriQuery}";
 
-                var clickOnceQuery = $"applicationPath={applicationPath};{originalQuery}";
+                var clickOnceQuery = $"applicationPath={applicationPath}{schemeUriQuery}";
                 var clickOnceLaunchCommand = $"{clickOnceDeploymentUri}?{clickOnceQuery}";
                 Log.Debug("ClickOnce launch command: " + clickOnceLaunchCommand);
                 var processInfo = new ProcessStartInfo
