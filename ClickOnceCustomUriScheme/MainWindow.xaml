@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ClickOnceCustomUriScheme"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance IsDesignTimeCreatable=True, Type=local:MainWindowViewModel}"
-        Title="MainWindow" Height="600" Width="600"
+        Title="MainWindow" Height="700" Width="600"
         FontSize="16"
         Icon="app.ico">
     <Grid Margin="20">

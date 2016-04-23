@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Text;
+using System.Web;
 
 namespace ClickOnceCustomUriScheme
 {
@@ -21,7 +22,7 @@ namespace ClickOnceCustomUriScheme
         }
 
         public string IsNetworkDeployed => ApplicationDeployment.IsNetworkDeployed ? "true" : "false";
-        public string IsFirstRun => ApplicationDeployment.CurrentDeployment?.IsFirstRun == true ? "true" : "false";
+        public string IsFirstRun => ApplicationDeployment.IsNetworkDeployed ? (ApplicationDeployment.CurrentDeployment?.IsFirstRun == true ? "true" : "false") : "";
 
         public string AdditionalInfo
         {
@@ -51,7 +52,7 @@ namespace ClickOnceCustomUriScheme
                 if (ApplicationDeployment.CurrentDeployment.ActivationUri == null)
                     return "<ActivationUri is null>";
 
-                var collection = ApplicationDeployment.CurrentDeployment.ActivationUri?.ParseQueryString();
+                var collection = HttpUtility.ParseQueryString(ApplicationDeployment.CurrentDeployment.ActivationUri.ToString());
                 if (collection == null || collection.Count == 0)
                     return "<no query paramters>";
 
