@@ -10,14 +10,13 @@ using NLog;
 namespace ClickOnceCustomUriScheme.ApplicationUri
 {
     /// <summary>
-    /// Documentation: https://msdn.microsoft.com/en-us/library/aa767914(v=vs.85).aspx
+    /// 
+    /// Registering an Application to a URI Scheme: https://msdn.microsoft.com/en-us/library/aa767914(v=vs.85).aspx
     /// 
     /// Keys are registered in User's space (HKCU)
     /// </summary>
     public static class ApplicationUriSchema
     {
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
         private const string SchemaDefinition = "theapp";
         private const string CustomUriSwitch = "-clickonce";
 
@@ -25,6 +24,8 @@ namespace ClickOnceCustomUriScheme.ApplicationUri
         private static readonly string CommandRegistrationKey = $"{UriRegistrationKey}\\shell\\open\\command";
 
         private static string PathToCurrentExecutable => Assembly.GetExecutingAssembly().Location;
+
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         // Possible improvement: 
         // If there are other consumers of startup arguments, then take out consumed arguments and return what's left

@@ -34,7 +34,7 @@ namespace ClickOnceCustomUriScheme
                 var sb = new StringBuilder();
                 sb.AppendLine($"ActivationUri: {ApplicationDeployment.CurrentDeployment.ActivationUri?.AbsoluteUri}");
                 sb.AppendLine($"ActivationUri.Query: {ApplicationDeployment.CurrentDeployment.ActivationUri?.PathAndQuery}");
-                sb.AppendLine($"UpdateLocation: {ApplicationDeployment.CurrentDeployment.UpdateLocation}");
+                sb.AppendLine($"UpdateLocation: {ApplicationDeployment.CurrentDeployment.UpdateLocation?.AbsoluteUri}");
                 sb.AppendLine($"UpdateLocation.Query: {ApplicationDeployment.CurrentDeployment.UpdateLocation?.Query}");
                 sb.AppendLine($"UpdateLocation.PathAndQuery: {ApplicationDeployment.CurrentDeployment.UpdateLocation?.PathAndQuery}");
                 sb.AppendLine($"DataDirectory: {ApplicationDeployment.CurrentDeployment.DataDirectory}");
@@ -49,11 +49,13 @@ namespace ClickOnceCustomUriScheme
                 if (!ApplicationDeployment.IsNetworkDeployed)
                     return "<not network deployed>";
 
-                if (ApplicationDeployment.CurrentDeployment.ActivationUri == null)
+                var launchUri = ApplicationDeployment.CurrentDeployment.ActivationUri;
+
+                if (launchUri == null)
                     return "<ActivationUri is null>";
 
-                var collection = HttpUtility.ParseQueryString(ApplicationDeployment.CurrentDeployment.ActivationUri.ToString());
-                if (collection == null || collection.Count == 0)
+                var collection = HttpUtility.ParseQueryString(launchUri.ToString());
+                if (collection.Count == 0)
                     return "<no query paramters>";
 
                 return collection
